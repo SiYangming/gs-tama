@@ -4,12 +4,29 @@ import re
 import sys
 import time
 from Bio import SeqIO
-from StringIO import StringIO
+#from io import StringIO
+from io import StringIO
 from Bio import AlignIO
 import os
 import argparse
 
-from __init__ import __version__
+# Robust version import: works when run as script or module
+__version__ = None
+try:
+    from __init__ import __version__
+except Exception:
+    try:
+        import os
+        init_path = os.path.join(os.path.dirname(__file__), '__init__.py')
+        if os.path.exists(init_path):
+            with open(init_path, 'r', encoding='utf-8') as f:
+                m = re.search(r"__version__\s*=\s*['\"]([^'\"]+)['\"]", f.read())
+                if m:
+                    __version__ = m.group(1)
+    except Exception:
+        pass
+    if __version__ is None:
+        __version__ = '1.0.4'
 
 
 """
@@ -20,10 +37,19 @@ Author: Richard I. Kuo
 
 This script collapses transcripts and groups transcripts into genes for long reads mapped onto a genome assembly.
 
+Local Update: 2025/10/16
+
+Modified by: Yangming Si
+
+Notes: Python2→Python3 compatibility adjustments recorded in
+  README.md (e.g. regex escape fixes, io.StringIO),
+  and local version bump tc_version=1.0.4.
+
 """
 
-tc_version = '1.0.3'
-tc_date = 'tc_version_date_2021_11_03'
+# 本地兼容修复记录：Python2→Python3（详见 tama_go/README.txt）
+tc_version = '1.0.4'
+tc_date = 'tc_version_date_2025_10_16'
 
 ### Notes on changes
 # Fixed issue with coordinates of soft clipped variants in the variant output file. 
@@ -355,8 +381,8 @@ def cigar_list(cigar):
     # fix issue with X and = used in SAM format from mininmap2
     cigar = re.sub('=', 'M', cigar)
     cigar = re.sub('X', 'M', cigar)
-
-    cig_char = re.sub('\d', ' ', cigar)
+    
+    cig_char = re.sub(r'\d', ' ', cigar)
     cig_char_list = cig_char.split()
 
     cig_digit = re.sub("[a-zA-Z]+", ' ', cigar)
@@ -371,7 +397,7 @@ def mapped_seq_length(cigar):
     [cig_dig_list,cig_char_list] = cigar_list(cigar)
     map_seq_length = 0
     
-    for i in xrange(len(cig_dig_list)):
+    for i in range(len(cig_dig_list)):
         cig_flag = cig_char_list[i]
         
         if cig_flag == "H":
@@ -403,7 +429,7 @@ def trans_coordinates(start_pos,cigar):
 
     exon_start_list.append(int(start_pos))
 
-    for i in xrange(len(cig_dig_list)):
+    for i in range(len(cig_dig_list)):
         cig_flag = cig_char_list[i]
         
         if cig_flag == "H":
@@ -517,7 +543,7 @@ def mismatch_seq(genome_seq,query_seq,genome_pos,seq_pos):
     seq_mismatch_list = []
     nuc_mismatch_list = []
     
-    for i in xrange(len(genome_seq)):
+    for i in range(len(genome_seq)):
 
         genome_nuc = genome_seq[i]
         read_nuc = query_seq[i]
@@ -602,7 +628,7 @@ def calc_error_rate(start_pos,cigar,seq_list,scaffold,read_id):
     genome_pos = start_pos - 1 #adjust for 1 base to 0 base coordinates
     seq_pos = 0
     
-    for i in xrange(len(cig_dig_list)):
+    for i in range(len(cig_dig_list)):
         cig_flag = cig_char_list[i]
         
         #print(seq_pos)
@@ -671,7 +697,7 @@ def calc_error_rate(start_pos,cigar,seq_list,scaffold,read_id):
             all_nuc_mismatch_list.extend(nuc_mismatch_list)
             
             ### for variation detection start
-            for mismatch_index in xrange(len(seq_mismatch_list)):
+            for mismatch_index in range(len(seq_mismatch_list)):
                 var_pos = genome_mismatch_list[mismatch_index]
                 seq_var_pos = seq_mismatch_list[mismatch_index]
                 var_seq = seq_list[seq_var_pos]
@@ -1008,7 +1034,7 @@ def calc_variation(start_pos,cigar,seq_list,scaffold,read_id):
     genome_pos = start_pos - 1 #adjust for 1 base to 0 base coordinates
     seq_pos = 0
 
-    for i in xrange(len(cig_dig_list)):
+    for i in range(len(cig_dig_list)):
         cig_flag = cig_char_list[i]
 
         #print(seq_pos)
@@ -1074,7 +1100,7 @@ def calc_variation(start_pos,cigar,seq_list,scaffold,read_id):
 
 
             ### for variation detection start
-            for mismatch_index in xrange(len(seq_mismatch_list)):
+            for mismatch_index in range(len(seq_mismatch_list)):
                 var_pos = genome_mismatch_list[mismatch_index]
                 seq_var_pos = seq_mismatch_list[mismatch_index]
                 var_seq = seq_list[seq_var_pos]
@@ -1182,7 +1208,7 @@ def calc_error_rate_lowmem(start_pos,cigar,seq_list,scaffold,read_id):
     genome_pos = start_pos - 1 #adjust for 1 base to 0 base coordinates
     seq_pos = 0
 
-    for i in xrange(len(cig_dig_list)):
+    for i in range(len(cig_dig_list)):
         cig_flag = cig_char_list[i]
 
         #print(seq_pos)
@@ -1581,7 +1607,7 @@ class Transcript:
         exon_start_string_list = []
         exon_end_string_list = []
 
-        for exon_index in xrange(len(self.exon_start_list)):
+        for exon_index in range(len(self.exon_start_list)):
             exon_start_string_list.append(str(self.exon_start_list[exon_index]))
             exon_end_string_list.append(str(self.exon_end_list[exon_index]))
 
@@ -1602,7 +1628,7 @@ class Transcript:
         self.sj_hash = 0
 
 
-        for exon_index in xrange(len(self.exon_start_list)-1):
+        for exon_index in range(len(self.exon_start_list)-1):
             self.sj_hash = self.sj_hash + (self.exon_start_list[exon_index+1] * self.exon_end_list[exon_index])
 
 
@@ -1671,7 +1697,7 @@ class Transcript:
         exon_start_string_list = []
         exon_end_string_list = []
         
-        for i in xrange(len(self.exon_start_list)):
+        for i in range(len(self.exon_start_list)):
             
             exon_start_string_list.append(str(self.exon_start_list[i]))
             exon_end_string_list.append(str(self.exon_end_list[i]))
@@ -1712,7 +1738,7 @@ class Transcript:
         
         relative_exon_start_list = []
         exon_length_list = []
-        for i in xrange(self.num_exons):
+        for i in range(self.num_exons):
             exon_start = self.exon_start_list[i]
             exon_end = self.exon_end_list[i]
             exon_length = exon_end - exon_start
@@ -1826,7 +1852,7 @@ class Merged:
         
         relative_exon_start_list = []
         exon_length_list = []
-        for i in xrange(self.num_exons):
+        for i in range(self.num_exons):
             exon_start = self.collapse_start_list[i]
             exon_end = self.collapse_end_list[i]
             exon_length = exon_end - exon_start
@@ -1903,7 +1929,7 @@ class Merged:
         
         start_wobble_string_list = []
         end_wobble_string_list = []
-        for i in xrange(len(self.start_wobble_list)):
+        for i in range(len(self.start_wobble_list)):
             start_wobble_string = str(self.start_wobble_list[i])
             start_wobble_string_list.append(start_wobble_string)
             end_wobble_string = str(self.end_wobble_list[i])
@@ -1917,7 +1943,7 @@ class Merged:
 
         collapse_sj_start_err_list_str = []
         collapse_sj_end_err_list_str = []
-        for i in xrange(len(self.collapse_sj_start_err_list)):
+        for i in range(len(self.collapse_sj_start_err_list)):
             collapse_sj_start_err_list_str.append(str(self.collapse_sj_start_err_list[i]))
             collapse_sj_end_err_list_str.append(str(self.collapse_sj_end_err_list[i]))
 
@@ -2183,7 +2209,7 @@ def compare_transcripts(trans_obj,o_trans_obj,fiveprime_cap_flag,strand): #use t
         
         all_match_flag = 1 # 1 if all matching and 0 if at least one not matching
         
-        for i in xrange(min_exon_num):
+        for i in range(min_exon_num):
             
             if strand == "+":
                 j = -1 * (i + 1) #iterate from last exon to account for possible 5' degradation for forward strand
@@ -2615,15 +2641,15 @@ def simple_sj_error(sj_pre_error_split,sj_post_error_split):
             mismatch_position = int(sj_pre_error_string.split(".")[0])
             mismatch_position += 1
             if sj_pre_error_count == 1:
-                for j in xrange(mismatch_position - 1):
+                for j in range(mismatch_position - 1):
                     sj_pre_error_simple_list.append(ses_match_char)
                     sj_pre_error_count += 1
                 sj_pre_error_simple_list.append("X")
                 sj_pre_error_count += 1
             elif sj_pre_error_count > 1:
                 m_pos_diff = mismatch_position - sj_pre_error_count
-                # for j in xrange(m_pos_diff-1):
-                for j in xrange(m_pos_diff):
+                # for j in range(m_pos_diff-1):
+                for j in range(m_pos_diff):
                     sj_pre_error_simple_list.append(ses_match_char)
                     sj_pre_error_count += 1
                 sj_pre_error_simple_list.append("X")
@@ -2631,7 +2657,7 @@ def simple_sj_error(sj_pre_error_split,sj_post_error_split):
         elif len(sj_pre_error_string.split(".")) == 1:
 
             if sj_pre_error_string == "0":
-                for j in xrange(sj_err_threshold):
+                for j in range(sj_err_threshold):
                     sj_pre_error_simple_list.append(ses_match_char)
 
             else:
@@ -2641,23 +2667,23 @@ def simple_sj_error(sj_pre_error_split,sj_post_error_split):
                 cig_char = cig_char_list[0]
 
                 if cig_char == "M":
-                    for j in xrange(cig_dig):
+                    for j in range(cig_dig):
                         sj_pre_error_simple_list.append(ses_match_char)
                         sj_pre_error_count += 1
                 elif cig_char == "I":
-                    for j in xrange(cig_dig):
+                    for j in range(cig_dig):
                         sj_pre_error_simple_list.append("I")
                         sj_pre_error_count += 1
                 elif cig_char == "D":
-                    for j in xrange(cig_dig):
+                    for j in range(cig_dig):
                         sj_pre_error_simple_list.append("D")
                         sj_pre_error_count += 1
                 elif cig_char == "S":
-                    for j in xrange(cig_dig):
+                    for j in range(cig_dig):
                         sj_pre_error_simple_list.append("S")
                         sj_pre_error_count += 1
                 elif cig_char == "H":
-                    for j in xrange(cig_dig):
+                    for j in range(cig_dig):
                         sj_pre_error_simple_list.append("H")
                         sj_pre_error_count += 1
         else:
@@ -2665,7 +2691,7 @@ def simple_sj_error(sj_pre_error_split,sj_post_error_split):
             sys.exit()
 
     if len(sj_pre_error_simple_list) < sj_err_threshold:
-        for j in xrange(sj_err_threshold - len(sj_pre_error_simple_list)):
+        for j in range(sj_err_threshold - len(sj_pre_error_simple_list)):
             sj_pre_error_simple_list.append(ses_match_char)
 
     sj_pre_error_simple_list_reverse = sj_pre_error_simple_list
@@ -2685,15 +2711,15 @@ def simple_sj_error(sj_pre_error_split,sj_post_error_split):
             mismatch_position = int(sj_post_error_string.split(".")[0])
             mismatch_position += 1
             if sj_post_error_count == 1:
-                for j in xrange(mismatch_position - 1):
+                for j in range(mismatch_position - 1):
                     sj_post_error_simple_list.append(ses_match_char)
                     sj_post_error_count += 1
                 sj_post_error_simple_list.append("X")
                 sj_post_error_count += 1
             elif sj_post_error_count > 1:
                 m_pos_diff = mismatch_position - sj_post_error_count
-                # for j in xrange(m_pos_diff-1):
-                for j in xrange(m_pos_diff):
+                # for j in range(m_pos_diff-1):
+                for j in range(m_pos_diff):
                     sj_post_error_simple_list.append(ses_match_char)
                     sj_post_error_count += 1
                 sj_post_error_simple_list.append("X")
@@ -2702,7 +2728,7 @@ def simple_sj_error(sj_pre_error_split,sj_post_error_split):
         elif len(sj_post_error_string.split(".")) == 1:
 
             if sj_post_error_string == "0":
-                for j in xrange(sj_err_threshold):
+                for j in range(sj_err_threshold):
                     sj_post_error_simple_list.append(ses_match_char)
 
             else:
@@ -2712,23 +2738,23 @@ def simple_sj_error(sj_pre_error_split,sj_post_error_split):
                 cig_char = cig_char_list[0]
 
                 if cig_char == "M":
-                    for j in xrange(cig_dig):
+                    for j in range(cig_dig):
                         sj_post_error_simple_list.append(ses_match_char)
                         sj_post_error_count += 1
                 elif cig_char == "I":
-                    for j in xrange(cig_dig):
+                    for j in range(cig_dig):
                         sj_post_error_simple_list.append("I")
                         sj_post_error_count += 1
                 elif cig_char == "D":
-                    for j in xrange(cig_dig):
+                    for j in range(cig_dig):
                         sj_post_error_simple_list.append("D")
                         sj_post_error_count += 1
                 elif cig_char == "S":
-                    for j in xrange(cig_dig):
+                    for j in range(cig_dig):
                         sj_post_error_simple_list.append("S")
                         sj_post_error_count += 1
                 elif cig_char == "H":
-                    for j in xrange(cig_dig):
+                    for j in range(cig_dig):
                         sj_post_error_simple_list.append("H")
                         sj_post_error_count += 1
         else:
@@ -2736,7 +2762,7 @@ def simple_sj_error(sj_pre_error_split,sj_post_error_split):
             sys.exit()
 
     if len(sj_post_error_simple_list) < sj_err_threshold:
-        for j in xrange(sj_err_threshold - len(sj_post_error_simple_list)):
+        for j in range(sj_err_threshold - len(sj_post_error_simple_list)):
             sj_post_error_simple_list.append(ses_match_char)
 
     sj_post_error_simple_string = "".join(sj_post_error_simple_list)
@@ -2787,7 +2813,7 @@ def sj_error_local_density(trans_obj):
 
     all_sj_both_error_simple_list = []
 
-    for i in xrange(max_exon_num-1):
+    for i in range(max_exon_num-1):
         
         this_bad_sj_flag = 0
 
@@ -3033,7 +3059,7 @@ def collapse_transcripts(trans_obj_list,fiveprime_cap_flag,collapse_flag): #use 
     #track how much wobble for the starts and end in the collapse
     start_wobble_list = []
     end_wobble_list = []
-    for i in xrange(max_exon_num): #go from 3 prime end
+    for i in range(max_exon_num): #go from 3 prime end
         if strand == "+":
             j = -1 * (i + 1) #iterate from last exon to account for possible 5' degradation for forward strand
         elif strand == "-":
@@ -3307,7 +3333,7 @@ def collapse_transcripts(trans_obj_list,fiveprime_cap_flag,collapse_flag): #use 
     #Below: check start and end list to make sure there are no overlapping coordinates
     prev_start = -1
     prev_end = -1
-    for i in xrange(len(collapse_start_list)):
+    for i in range(len(collapse_start_list)):
         check_start = collapse_start_list[i]
         check_end = collapse_end_list[i]
         
@@ -3380,9 +3406,9 @@ def gene_group(trans_list): #groups trans into genes, does not take into account
         trans_gene_dict[trans_id] = gene_count
         
     
-    for i in xrange(len(trans_obj_list)):
+    for i in range(len(trans_obj_list)):
         trans_obj = trans_obj_list[i]
-        for j in xrange(i+1,len(trans_obj_list)):
+        for j in range(i+1,len(trans_obj_list)):
             o_trans_obj = trans_obj_list[j]
 
             trans_id  = trans_obj.cluster_id
@@ -3406,8 +3432,8 @@ def gene_group(trans_list): #groups trans into genes, does not take into account
             
             overlap_flag = 0
             
-            for i in xrange(num_exons): #search for overlapping exons
-                for j in xrange(o_num_exons):
+            for i in range(num_exons): #search for overlapping exons
+                for j in range(o_num_exons):
                     exon_start = exon_start_list[i]
                     exon_end = exon_end_list[i]
                     o_exon_start = o_exon_start_list[j]
@@ -3511,8 +3537,7 @@ def gene_group(trans_list): #groups trans into genes, does not take into account
             sys.exit()
         start_gene_dict[gene_start] = gene_num
     
-    start_gene_list = start_gene_dict.keys()
-    start_gene_list.sort()
+    start_gene_list = sorted(start_gene_dict.keys())
     
     gene_start_trans_dict = {} # gene_start_trans_dict[gene start][trans id] = 1
     for gene_start in start_gene_list: # make duct for gene starts to trans
@@ -3541,7 +3566,7 @@ def iterate_sort_list(list_trans_pos_list,pos_index):
         same_order_index_dict = {}  # same_order_index_dict[pos][index] = 1
 
         # collect positions and index where the sort was equal
-        for j in xrange(len(list_trans_pos_list)):
+        for j in range(len(list_trans_pos_list)):
 
             trans_pos_line_split = list_trans_pos_list[j]
             pos_element = trans_pos_line_split[pos_index]
@@ -3620,7 +3645,7 @@ def sort_pos_trans_list(pos_trans_list,pos_trans_dict):
         diff_pos = max_pos_num - len(trans_pos_line_split)
 
         # pad out list so all pos lists have same number of elements
-        for i in xrange(diff_pos):
+        for i in range(diff_pos):
             trans_pos_line_split.append(0)
 
         trans_pos_line_split_str = []
@@ -3689,7 +3714,7 @@ def sort_transcripts(trans_obj_list):
 
         num_exons = len(trans_exon_start_list)
 
-        for i in xrange(num_exons):
+        for i in range(num_exons):
             exon_start = trans_exon_start_list[i]
             trans_pos_list.append(str(exon_start))
             trans_pos_list.append(",")
@@ -4916,7 +4941,7 @@ def detect_rt_switch(trans_obj): # looks for complementary structure in intronic
     
     bind_seq_dict = {} # bind_seq_dict[splice junction]['end seq'/'start seq'] = seq
     
-    for i in xrange(len(this_exon_starts)-1):
+    for i in range(len(this_exon_starts)-1):
         
         bind_flag = 0
         start_index = i + 1
@@ -4927,12 +4952,12 @@ def detect_rt_switch(trans_obj): # looks for complementary structure in intronic
         rev_comp_end_seq = reverse_complement(end_seq)
         
         binding_dict = {} # binding_dict[bind seq] = 1
-        for j in xrange(rt_window-bind_length):
+        for j in range(rt_window-bind_length):
             bind_seq = start_seq[j:j+bind_length]
             bind_seq_string = "".join(bind_seq)
             binding_dict[bind_seq_string] = 1
         
-        for j in xrange(rt_window-bind_length):
+        for j in range(rt_window-bind_length):
             bind_seq = rev_comp_end_seq[j:j+bind_length]
             bind_seq_string = "".join(bind_seq)
             if bind_seq_string in binding_dict:
@@ -5002,6 +5027,21 @@ def compare_multimaps(trans_obj_a,trans_obj_b): ### Added this 2019/03/04
 ####################################################################################################
 ####################################################################################################
 
+# Helper: gzip-aware FASTA parsing
+def _seqio_parse_fasta_any(path):
+    """
+    Return an iterator of SeqIO records, supporting both plain and gzipped FASTA.
+    """
+    try:
+        if path.endswith((".gz", ".bgz", ".bgzip")):
+            import gzip
+            return SeqIO.parse(gzip.open(path, "rt"), "fasta")
+        else:
+            return SeqIO.parse(path, "fasta")
+    except UnicodeDecodeError:
+        import gzip
+        return SeqIO.parse(gzip.open(path, "rt"), "fasta")
+
 ####################################################################################### Loop through fasta file
 
 fasta_dict = {} # fasta_dict[scaffold name] = array for seq
@@ -5011,7 +5051,7 @@ fasta_scaffold_list = [] # list of fatsa seq names to be compared to SAM file he
 prev_time = track_time(start_time,prev_time)
 #Create fasta lookup dict
 print("going through fasta")
-for seq_record in SeqIO.parse(fasta_file_name, "fasta"):
+for seq_record in _seqio_parse_fasta_any(fasta_file_name):
     seq_name = str(seq_record.id)
     seq_desc = str(seq_record.description)
     
@@ -5070,15 +5110,43 @@ if bam_flag == "BAM":
     from subprocess import Popen, PIPE
     sam_file_contents = []
 
-    samtools_path = "samtools"
+    # 允许通过环境变量指定 samtools 路径（由封装注入），否则回退到 PATH 中的 samtools
+    try:
+        import os  # noqa: F401
+        samtools_path = os.environ.get('SAMTOOLS_BIN', 'samtools')
+    except Exception:
+        samtools_path = 'samtools'
+
     pline = [samtools_path, 'view', sam_file]
+    stdout_b = None
+    stderr_b = None
+    proc_ok = False
     try:
         p = Popen(pline, bufsize=-1, stdout=PIPE, stderr=PIPE)
+        stdout_b, stderr_b = p.communicate()
+        proc_ok = (getattr(p, 'returncode', 0) == 0)
     except OSError:
-        raise OSError('Samtools not found!\n')
+        proc_ok = False
 
-    sam_file_list = p.communicate()
-    sam_file_contents = sam_file_list[0].split("\n")
+    if not proc_ok:
+        # samtools 不可用或执行失败，回退使用 pysam
+        try:
+            import pysam  # noqa: F401
+            py_out = pysam.view('-h', sam_file, catch_stdout=True)
+            if isinstance(py_out, bytes):
+                py_text = py_out.decode('utf-8', 'replace')
+            else:
+                py_text = py_out
+            sam_file_contents = py_text.rstrip("\n").split("\n")
+        except Exception as e:
+            raise OSError('Samtools not found or failed, and pysam fallback errored: %s\n' % (str(e)))
+    else:
+        # Python3: 子进程输出为字节流，需解码
+        if isinstance(stdout_b, bytes):
+            out_text = stdout_b.decode('utf-8', 'replace')
+        else:
+            out_text = stdout_b
+        sam_file_contents = out_text.rstrip("\n").split("\n")
     
     print(len(sam_file_contents))
 
@@ -5373,7 +5441,7 @@ if run_mode_flag == "original":
 
     multimap_missing_group_flag = 0
 
-    for i in xrange(total_group_count+1):
+    for i in range(total_group_count+1):
 
         if i not in group_trans_list_dict:
             print("Missing group num, check for multi-maps in SAM file")
@@ -5412,7 +5480,7 @@ if run_mode_flag == "original":
 
             this_exon_start_list = trans_obj.exon_start_list
             this_exon_end_list = trans_obj.exon_end_list
-            for exon_index in xrange(len(this_exon_start_list)):
+            for exon_index in range(len(this_exon_start_list)):
                 this_exon_start = this_exon_start_list[exon_index]
                 this_exon_end = this_exon_end_list[exon_index]
                 for this_coord in range(this_exon_start,this_exon_end):
@@ -5435,10 +5503,8 @@ if run_mode_flag == "original":
         for gene_start in reverse_gene_start_trans_dict:
             all_start_gene_dict[gene_start] = 1
 
-        all_start_list = all_start_gene_dict.keys()
-
-        all_start_list.sort()
-
+        all_start_list = sorted(all_start_gene_dict.keys())
+        
         for gene_start in all_start_list:
             gene_trans_obj_list = [] #list of trans obj lists
 
@@ -5508,7 +5574,7 @@ if run_mode_flag == "original":
                         collapse_start_error_nuc_list = []
                         collapse_end_error_nuc_list = []
 
-                        for exon_index in xrange(len(exon_start_list)):  # go from 3 prime end
+                        for exon_index in range(len(exon_start_list)):  # go from 3 prime end
                             e_start_priority, e_end_priority, e_start_priority_error,e_end_priority_error = sj_error_priority_finder(solo_trans_obj, exon_index, max_exon_num)  ####################################
 
                             collapse_sj_start_err_list.append(e_start_priority)
@@ -5741,9 +5807,7 @@ def process_loci(this_trans_obj_dict,trans_list,this_gene_count):
     for gene_start in reverse_gene_start_trans_dict:
         all_start_gene_dict[gene_start] = 1
 
-    all_start_list = all_start_gene_dict.keys()
-
-    all_start_list.sort()
+    all_start_list = sorted(all_start_gene_dict.keys())
 
     for gene_start in all_start_list:
         gene_trans_obj_list = [] #list of trans obj lists
@@ -5814,7 +5878,7 @@ def process_loci(this_trans_obj_dict,trans_list,this_gene_count):
                     collapse_start_error_nuc_list = []
                     collapse_end_error_nuc_list = []
 
-                    for exon_index in xrange(len(exon_start_list)):  # go from 3 prime end
+                    for exon_index in range(len(exon_start_list)):  # go from 3 prime end
                         e_start_priority, e_end_priority, e_start_priority_error,e_end_priority_error = sj_error_priority_finder(solo_trans_obj, exon_index, max_exon_num)  ####################################
 
                         collapse_sj_start_err_list.append(e_start_priority)

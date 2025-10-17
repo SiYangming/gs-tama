@@ -135,7 +135,7 @@ class Transcript:
 
         self.trans_coord_list = []
         self.trans_coord_dict = {} # trans_coord_dict[coord] = index
-        for i in xrange(int(self.num_exons)):
+        for i in range(int(self.num_exons)):
 
             e_index = i
             e_num = e_index + 1
@@ -145,7 +145,7 @@ class Transcript:
 
             e_length = e_end - e_start
 
-            for j in xrange(e_length + 1):
+            for j in range(e_length + 1):
                 pos_coord = e_start + j
                 self.trans_coord_list.append(pos_coord)
                 self.trans_coord_dict[pos_coord] = len(self.trans_coord_list) - 1
@@ -227,7 +227,7 @@ class Transcript:
         cds_e_start_list = []
         cds_e_end_list = []
 
-        for i in xrange(int(self.num_exons)):
+        for i in range(int(self.num_exons)):
 
             e_index = i
             e_num = e_index + 1
@@ -266,7 +266,7 @@ class Transcript:
         # convert to new bed line
         new_block_list = []
         new_starts_list = []
-        for i in xrange(len(cds_e_start_list)):
+        for i in range(len(cds_e_start_list)):
             cds_e_start = cds_e_start_list[i]
             cds_e_end = cds_e_end_list[i]
 

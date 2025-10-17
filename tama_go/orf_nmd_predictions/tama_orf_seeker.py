@@ -270,7 +270,7 @@ def sort_orf_list(orf_list1,orf_list2,orf_list3):
     top_orf_list = []
     
     #get longest 4 orf's, may be less if there aren't that many due to the stop codon assumption
-    for i in xrange(4):
+    for i in range(4):
         if i < len(orf_size_list):
             for orf_obj in orf_size_dict[orf_size_list[i]]:
                 

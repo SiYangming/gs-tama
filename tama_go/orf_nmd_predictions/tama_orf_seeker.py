@@ -264,7 +264,7 @@ def sort_orf_list(orf_list1,orf_list2,orf_list3):
             
         orf_size_dict[orf_length].append(orf_obj)
     
-    orf_size_list = orf_size_dict.keys()
+    orf_size_list = list(orf_size_dict.keys())
     orf_size_list.sort(reverse=True)
     
     top_orf_list = []

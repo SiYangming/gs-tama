@@ -57,7 +57,7 @@ class Transcript:
     def finish_bed(self):
         
         
-        exon_num_list = self.exon_dict.keys()
+        exon_num_list = list(self.exon_dict.keys())
         self.num_exons = len(exon_num_list)
         exon_num_list.sort()
         

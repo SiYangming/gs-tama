@@ -4,7 +4,6 @@ import re
 import sys
 import time
 from Bio import SeqIO
-#from io import StringIO
 from io import StringIO
 from Bio import AlignIO
 import os
@@ -1739,8 +1738,8 @@ class Merged:
         
         self.merged_trans_dict[merged_trans_id] = trans_obj
         
-        merged_trans_id_list = self.merged_trans_dict.keys()
-        self.trans_list = self.merged_trans_dict.keys()
+        merged_trans_id_list = list(self.merged_trans_dict.keys())
+        self.trans_list = list(self.merged_trans_dict.keys())
 
         self.num_trans = len(merged_trans_id_list)
         
@@ -3687,9 +3686,9 @@ def sort_transcripts(trans_obj_list):
             if log_flag == "log_on":
 
                 print("Duplicate transcript positions in transcript sorting!")
-                print(trans_obj.merged_trans_dict.keys())
+                print(list(trans_obj.merged_trans_dict.keys()))
                 print(str(trans_start)+" "+str(trans_end))
-                print(pos_trans_dict[trans_pos_line].merged_trans_dict.keys())
+                print(list(pos_trans_dict[trans_pos_line].merged_trans_dict.keys()))
             this_bed_line = trans_obj.format_bed_line()
             other_bed_line = pos_trans_dict[trans_pos_line].format_bed_line()
 
@@ -5368,7 +5367,7 @@ def process_variation(scaffold,variation_dict,var_coverage_dict,var_support_thre
 
     if scaffold not in variation_dict:
         print("error with scaffold match in loci_variation")
-        print(variation_dict.keys())
+        print(list(variation_dict.keys()))
         sys.exit()
 
 
@@ -5491,14 +5490,14 @@ def process_loci(this_trans_obj_dict,trans_list,this_gene_count):
 
         #if a forward and reverse gene start at the same place use this to make the the forward strand gene is represented first
         if gene_start in forward_gene_start_trans_dict:
-            trans_id_list = forward_gene_start_trans_dict[gene_start].keys()
+            trans_id_list = list(forward_gene_start_trans_dict[gene_start].keys())
             trans_obj_list = []
             for trans_id in trans_id_list:
                 trans_obj_list.append(this_trans_obj_dict[trans_id])
             gene_trans_obj_list.append(trans_obj_list)
 
         if gene_start in reverse_gene_start_trans_dict:
-            trans_id_list = reverse_gene_start_trans_dict[gene_start].keys()
+            trans_id_list = list(reverse_gene_start_trans_dict[gene_start].keys())
             trans_obj_list = []
             for trans_id in trans_id_list:
                 trans_obj_list.append(this_trans_obj_dict[trans_id])
@@ -5524,7 +5523,7 @@ def process_loci(this_trans_obj_dict,trans_list,this_gene_count):
                 tmp_trans_id = "G" + str(this_gene_count) + ".tmp." + str(tmp_count)
                 merged_obj = Merged(tmp_trans_id)
 
-                match_trans_id_list = match_group_trans_dict[match_group_num].keys()
+                match_trans_id_list = list(match_group_trans_dict[match_group_num].keys())
                 match_trans_obj_list = []
                 for match_trans_id in match_trans_id_list:
                     match_trans_obj = this_trans_obj_dict[match_trans_id]

@@ -416,7 +416,7 @@ class Merged:
         
         self.merged_trans_dict[merged_trans_id] = trans_obj
         
-        merged_trans_id_list = self.merged_trans_dict.keys()
+        merged_trans_id_list = list(self.merged_trans_dict.keys())
         self.num_trans = len(merged_trans_id_list)
         
         if self.num_exons < int(trans_obj.num_exons):
@@ -1746,9 +1746,9 @@ def sort_transcripts(trans_obj_list,trans_obj_dict):
             new_trans_list = trans_obj.trans_list            
 
             print("Duplicate transcript positions in transcript sorting!")
-            print(trans_obj.merged_trans_dict.keys())
+            print(list(trans_obj.merged_trans_dict.keys()))
             print(str(trans_start)+" "+str(trans_end))
-            print(pos_trans_dict[trans_pos_line].merged_trans_dict.keys())
+            print(list(pos_trans_dict[trans_pos_line].merged_trans_dict.keys()))
             this_bed_line = trans_obj.format_bed_line()
             other_bed_line = pos_trans_dict[trans_pos_line].format_bed_line()
             print(this_bed_line)
@@ -3322,7 +3322,7 @@ def process_trans_group(trans_line_list, total_gene_count):
             gene_trans_obj_list.append(trans_obj_list)
         
         if gene_start in reverse_gene_start_trans_dict:
-            uniq_trans_id_list = reverse_gene_start_trans_dict[gene_start].keys()
+            uniq_trans_id_list = list(reverse_gene_start_trans_dict[gene_start].keys())
             trans_obj_list = []
             for uniq_trans_id in uniq_trans_id_list:
                 trans_obj_list.append(trans_obj_dict[uniq_trans_id])
@@ -3349,7 +3349,7 @@ def process_trans_group(trans_line_list, total_gene_count):
                 tmp_trans_id = "G" + str(total_gene_count) + ".tmp." + str(tmp_count)
                 merged_obj = Merged(tmp_trans_id)
                 
-                match_trans_id_list = match_group_trans_dict[match_group_num].keys()
+                match_trans_id_list = list(match_group_trans_dict[match_group_num].keys())
                 match_trans_obj_list = []
                 for match_trans_id in match_trans_id_list:
                     match_trans_obj = trans_obj_dict[match_trans_id]
@@ -3534,7 +3534,7 @@ for file_line in filelist_file_contents:
     # check for issues with the use of spaces in filelist file
     space_line_split = file_line.split(" ")
     if len(space_line_split) > 1:
-        print("Error with Incorrect seq types given in filelist file")
+        print("Error with Incorrect seq types given in filelist file" + filelist_file)
         print(file_line)
         print("Please make sure it is tab separated with no empty lines and no spaces")
         sys.exit()

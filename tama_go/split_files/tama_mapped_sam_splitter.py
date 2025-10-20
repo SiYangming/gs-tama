@@ -1,13 +1,8 @@
-import re
 import sys
-import time
-
 
 #
 # This script splits mapped sam files by chromosome
 #
-
-
 
 print("opening sam file")
 sam_file = sys.argv[1]
@@ -17,8 +12,6 @@ num_files = int(sys.argv[2])
 
 outfile_prefix = sys.argv[3]
 
-
-
 if sam_file.endswith("sam"):
     bam_flag = "SAM"
 elif sam_file.endswith("bam"):
@@ -27,20 +20,20 @@ else:
     print("Please use Sam or Bam input.")
     sys.exit()
 
-
 print("going through sam/bam file")
 
 if bam_flag == "BAM":
 
-    from subprocess import Popen, PIPE
+    from subprocess import PIPE, Popen
+
     sam_file_contents = []
 
     samtools_path = "samtools"
-    pline = [samtools_path, 'view', sam_file]
+    pline = [samtools_path, "view", sam_file]
     try:
         p = Popen(pline, bufsize=-1, stdout=PIPE, stderr=PIPE)
     except OSError:
-        raise OSError('Samtools not found!\n')
+        raise OSError("Samtools not found!\n")
 
     sam_file_list = p.communicate()
     sam_file_contents = sam_file_list[0].split("\n")
@@ -53,8 +46,8 @@ elif bam_flag == "SAM":
 
 ##########################
 
-chrom_read_dict = {} # chrom_read_dict[chrom] = list of read line
-chrom_numread_dict = {} # chrom_numread_dict[chrom] = number of reads
+chrom_read_dict = {}  # chrom_read_dict[chrom] = list of read line
+chrom_numread_dict = {}  # chrom_numread_dict[chrom] = number of reads
 
 chrom_list = []
 
@@ -64,16 +57,15 @@ sam_count = 0
 
 for line in sam_file_contents:
 
-
     line_split = line.split("\t")
 
-#    if line_split[0] == "@SQ":
-#        seq_name = line_split[1].split(":")[1]
-#        seq_length = line_split[2].split(":")[1]
-#
-#        sam_scaffold_dict[seq_name] = seq_length
-#        sam_scaffold_list.append(seq_name)
-#
+    #    if line_split[0] == "@SQ":
+    #        seq_name = line_split[1].split(":")[1]
+    #        seq_length = line_split[2].split(":")[1]
+    #
+    #        sam_scaffold_dict[seq_name] = seq_length
+    #        sam_scaffold_list.append(seq_name)
+    #
     if line.startswith("@"):
         sam_header_list.append(line)
         continue
@@ -118,15 +110,19 @@ prev_chrom_count = 0
 
 last_file_chrom = 0
 
-# outfile_name = outfile_prefix + "_" + str(prev_chrom_count) + "_" + str(chrom_count) + ".sam"
-outfile_name = outfile_prefix + "_" + str(file_count)  + ".sam"
+# outfile_name = (
+#     outfile_prefix + "_" +
+#     str(prev_chrom_count) + "_" +
+#     str(chrom_count) + ".sam"
+# )
+outfile_name = outfile_prefix + "_" + str(file_count) + ".sam"
 outfile = open(outfile_name, "w")
 
 for header_line in sam_header_list:
     outfile.write(header_line)
     outfile.write("\n")
 
-while total_read_count <  sam_count:
+while total_read_count < sam_count:
     chrom = chrom_list[chrom_count]
     chrom_numreads = chrom_numread_dict[chrom]
 
@@ -136,7 +132,6 @@ while total_read_count <  sam_count:
     chrom_count += 1
 
     if file_read_count > num_file_reads and prev_file_read_count > 0:
-
 
         file_read_count = chrom_numreads
         file_count += 1
@@ -157,15 +152,4 @@ while total_read_count <  sam_count:
 
         total_read_count += 1
 
-
 outfile.close()
-
-
-
-
-
-
-
-
-
-

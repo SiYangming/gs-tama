@@ -1,0 +1,11 @@
+# >E1C721 Uncharacterized protein OS=Gallus gallus GN=LOC425783 PE=4 SV=2
+
+# > sp|Q9HC56|PCDH9_HUMAN Protocadherin-9 OS=Homo sapiens OX=9606
+
+# >ENSGALP00000050219.1 pep chromosome:GRCg6a:MT:13071:14888:1
+# gene:ENSGALG00000029500.1
+# transcript:ENSGALT00000047001.1
+# gene_biotype:protein_coding
+# transcript_biotype:protein_coding gene_symbol:ND5 description:NADH-ubiquinone
+# oxidoreductase chain 5  [Source:UniProtKB/Swiss-Prot;Acc:P18940]
+# Length=605

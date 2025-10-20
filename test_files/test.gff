@@ -1,0 +1,17 @@
+Chr1_RagTag_polished	Liftoff	gene	6983	9251	.	+	.	ID=AT1G01010;Note=protein_coding_gene;Name=AT1G01010;coverage=1.0;sequence_ID=1.0;valid_ORFs=1;extra_copy_number=0;copy_num_ID=AT1G01010_0	
+Chr1_RagTag_polished	Liftoff	mRNA	6983	9251	.	+	.	ID=AT1G01010.1;Parent=AT1G01010;Name=AT1G01010.1;Index=1;matches_ref_protein=True;valid_ORF=True;extra_copy_number=0	
+Chr1_RagTag_polished	Liftoff	exon	6983	7265	.	+	.	ID=exon_1;Parent=AT1G01010.1;extra_copy_number=0	
+Chr1_RagTag_polished	Liftoff	exon	7348	7628	.	+	.	ID=exon_2;Parent=AT1G01010.1;extra_copy_number=0	
+Chr1_RagTag_polished	Liftoff	exon	7838	7957	.	+	.	ID=exon_3;Parent=AT1G01010.1;extra_copy_number=0	
+Chr1_RagTag_polished	Liftoff	exon	8058	8447	.	+	.	ID=exon_4;Parent=AT1G01010.1;extra_copy_number=0	
+Chr1_RagTag_polished	Liftoff	exon	8526	8678	.	+	.	ID=exon_5;Parent=AT1G01010.1;extra_copy_number=0	
+Chr1_RagTag_polished	Liftoff	exon	8791	9251	.	+	.	ID=exon_6;Parent=AT1G01010.1;extra_copy_number=0	
+Chr1_RagTag_polished	Liftoff	CDS	7112	7265	.	+	.	ID=CDS_1;Parent=AT1G01010.1	AT1G01010.1-Protein;extra_copy_number=0
+Chr1_RagTag_polished	Liftoff	CDS	7348	7628	.	+	.	ID=CDS_2;Parent=AT1G01010.1	AT1G01010.1-Protein;extra_copy_number=0
+Chr1_RagTag_polished	Liftoff	CDS	7838	7957	.	+	.	ID=CDS_3;Parent=AT1G01010.1	AT1G01010.1-Protein;=;extra_copy_number=0
+Chr1_RagTag_polished	Liftoff	CDS	8058	8447	.	+	.	ID=CDS_4;Parent=AT1G01010.1	AT1G01010.1-Protein;=;extra_copy_number=0
+Chr1_RagTag_polished	Liftoff	CDS	8526	8678	.	+	.	ID=CDS_5;Parent=AT1G01010.1	AT1G01010.1-Protein;=;extra_copy_number=0
+Chr1_RagTag_polished	Liftoff	CDS	8791	8982	.	+	.	ID=CDS_6;Parent=AT1G01010.1	AT1G01010.1-Protein;=;extra_copy_number=0
+Chr1_RagTag_polished	Liftoff	five_prime_UTR	6983	7111	.	+	.	ID=five_prime_UTR_1;Parent=AT1G01010.1;extra_copy_number=0	
+Chr1_RagTag_polished	Liftoff	three_prime_UTR	8983	9251	.	+	.	ID=three_prime_UTR_1;Parent=AT1G01010.1;extra_copy_number=0	
+ChrC	TAIR10	transcript	107599	107701	.	+	.	ID=ATCG00960.1;Parent=ATCG00960	

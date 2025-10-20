@@ -1,7 +1,4 @@
-
-import re
 import sys
-import time
 
 #
 # This script comverts nanopore fastq to fasta
@@ -11,17 +8,10 @@ print("opening fastq")
 fastq_file = sys.argv[1]
 fastq_file_contents = open(fastq_file).read().rstrip("\n").split("\n")
 
-
 outfile_name = sys.argv[2]
-outfile = open(outfile_name,"w")
+outfile = open(outfile_name, "w")
 
-
-
-#@8d5574f8-f8bd-42a8-a7cd-48c2d861d28f runid=4bc3cf4ba4a58c18a40a60b88bd63beebc1d69bf read=1009 ch=111 start_time=2017-11-15T14:17:18Z
-#TTGGTATTAGCGTTCAGATTTGGCAGCCGCGCCTGTCGCTCATCTTCTTTTTAGGTTCTTAAATCTGAAACTACGTGAGCCAGACCAAGGTCAATTCCTGAACCCTTATCCGGCCCGGCCTTGCTGTGTACGTCTCGGGTCTAGAACCAAAAAGGAAAAACCTGGCTGAAAAACCGAAATCACAAAACAAAAAGCATAAAAAAGAAAAATTCTTTCAATTACTTACTTTATTAACTTATTTATTATATAAATATATATTCACCTATCACCGTCTCCTGCTCATAATATAGCTGGAGCTATGCTGATGTGCGTCGGGCGTGTAAACCTCCAGAGGTGGGCTGATGGCCTGCTGAGGCGGTTTTGTTTCCCCTTTTTTTGAGTTTAATTCTGATTGATTTTCCTCTGGGGACGGATAATAAAACATGTAATATTTTTATAAGTGAAACGCA
-#+
-#(',-*%%%%')'+,(&()(*())&%#$$%'(),*/30((*,+)'))%0242/+*..7+3+01))*+*)'$$&%)')(&&*21214&'$$#&')*)(,,%&052/%(''-50'-/63-51./0')+)+''#%%&&(*$-).''('+-%$0662+)),/32),'%%##$$')+-+($"-/2,*+--5:,/,8984$*(+.8940+&,2/*(*)$&)*))'*&%'+(),282,0+/+'))(-6505<997189;35-+*(*&&%'%'&(&#&(((()()*'))+)+.'+((%$&$$&(%'%$&%(,--*(%%&-.6/3.-((&'''%*)(-()+%*(*/-)*),,/*')&%%(()''%./.774)#()&*/0*)::642*)'/093+'/.223425-'+(&&'&%)),3:/,,)3222811:82./.-)*()&/576((*(&%%''*('$$%
-
+# test_files/test.fastq
 count_lines = 0
 
 for line in fastq_file_contents:
@@ -45,6 +35,3 @@ for line in fastq_file_contents:
 
         fasta_header = "na"
         fasta_seq = "na"
-
-
-

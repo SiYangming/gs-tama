@@ -1,27 +1,23 @@
-import re
-import sys
-import time
-from Bio import SeqIO
-
-import os
 import argparse
+import sys
 
+ap = argparse.ArgumentParser(description=("""
+        This script takes a bed file with cds information and
+        creates a bed file with only cds regions.
+        Use this to get CDS sequence using bedtools getfasta
+        """))
 
-#This script takes a bed file with cds information and creates a bed file with only cds regions
-# Use this to get CDS sequence using bedtools getfasta
-
-ap = argparse.ArgumentParser(description='This script takes a bed file with cds information and creates a bed file with only cds regions')
-
-ap.add_argument('-b', type=str, nargs=1, help='Bed file (required)')
-ap.add_argument('-s', type=str, nargs=1, help='Stop codon include flag (required)')
-ap.add_argument('-o', type=str, nargs=1, help='Output file name (required)')
-
+ap.add_argument("-b", type=str, nargs=1, help="Bed file (required)")
+ap.add_argument("-s",
+                type=str,
+                nargs=1,
+                help="Stop codon include flag (required)")
+ap.add_argument("-o", type=str, nargs=1, help="Output file name (required)")
 
 opts = ap.parse_args()
 
-#check for missing args
+# check for missing args
 missing_arg_flag = 0
-
 
 if not opts.b:
     print("Annotation bed file missing")
@@ -41,34 +37,36 @@ stop_codon_flag = opts.s[0]
 outfile_name = opts.o[0]
 
 print("opening bed file")
-#bed_file = sys.argv[1]
+# bed_file = sys.argv[1]
 bed_file_contents = open(bed_file).read().rstrip("\n").split("\n")
 
+# stop_codon_flag = sys.argv[2] # either include_stop or exclude_stop
 
-#stop_codon_flag = sys.argv[2] # either include_stop or exclude_stop
-
-#outfile_name = sys.argv[3]
-outfile = open(outfile_name,"w")
-
-
+# outfile_name = sys.argv[3]
+outfile = open(outfile_name, "w")
 
 gene_source = "tama"
 trans_source = "tama"
 
-def calc_end(start,block_size):
-    end = int(start) + int(block_size) - 1 # adjust for bed 0 base and gtf 1 base coords
-    #end = int(start) + int(block_size)  #
+
+def calc_end(start, block_size):
+    end = (int(start) + int(block_size) - 1
+           )  # adjust for bed 0 base and gtf 1 base coords
+    # end = int(start) + int(block_size)  #
     return str(end)
 
-def calc_exon_start(t_start,e_start):
+
+def calc_exon_start(t_start, e_start):
     coordinate_start = int(e_start) + int(t_start)
     return str(coordinate_start)
+
 
 def convert_str_list_to_int(str_list):
     int_list = []
     for string in str_list:
         int_list.append(int(string))
     return int_list
+
 
 def convert_int_list_to_str(int_list):
     str_list = []
@@ -78,6 +76,7 @@ def convert_int_list_to_str(int_list):
 
 
 class Transcript:
+
     def __init__(self, bed_line):
         line_split = bed_line.split("\t")
         chrom = line_split[0]
@@ -99,7 +98,6 @@ class Transcript:
         degrade_flag = id_split[3]
         match_flag = id_split[4]
         nmd_flag = id_split[5]
-
 
         self.id_list = id_split
         self.prot_id = prot_id
@@ -128,17 +126,17 @@ class Transcript:
         self.end_list = map(calc_end, self.start_list, block_list)
         self.num_exons = num_exons
 
-        self.cds_start = cds_start  #################################################
-        self.cds_end = cds_end  #################################################
-        
+        self.cds_start = cds_start
+        self.cds_end = cds_end
+
         # make position list
 
         self.trans_coord_list = []
-        self.trans_coord_dict = {} # trans_coord_dict[coord] = index
+        self.trans_coord_dict = {}  # trans_coord_dict[coord] = index
         for i in range(int(self.num_exons)):
 
             e_index = i
-            e_num = e_index + 1
+            e_index + 1
 
             e_start = int(self.start_list[e_index])
             e_end = int(self.end_list[e_index])
@@ -148,25 +146,25 @@ class Transcript:
             for j in range(e_length + 1):
                 pos_coord = e_start + j
                 self.trans_coord_list.append(pos_coord)
-                self.trans_coord_dict[pos_coord] = len(self.trans_coord_list) - 1
+                self.trans_coord_dict[pos_coord] = len(
+                    self.trans_coord_list) - 1
 
-        
         # adjust cds end because of bed format 0 1 number method
         # correct for neg strand when cds goes to end
         if self.strand == "-" and self.cds_end == self.trans_coord_list[-1] + 1:
-                self.cds_end_adj = self.trans_coord_list[-1]
-                
-        else: # this is the normal condition for CDS
+            self.cds_end_adj = self.trans_coord_list[-1]
+
+        else:  # this is the normal condition for CDS
             try:
                 cds_end_index = self.trans_coord_dict[self.cds_end]
-            except:
+            except BaseException:
                 print(self.trans_coord_list)
                 print(len(self.trans_coord_list))
                 print(self.cds_end)
                 print(self.trans_id)
                 print("error with self.cds_end")
                 sys.exit()
-                
+
             self.cds_end_adj = self.trans_coord_list[cds_end_index - 1]
 
         # this is deprecated because I do this check before calling this function
@@ -181,7 +179,7 @@ class Transcript:
 
                     try:
                         cds_end_index = self.trans_coord_dict[self.cds_end_adj]
-                    except:
+                    except BaseException:
                         print(self.trans_coord_list)
                         print(self.cds_end_adj)
                         print(self.trans_id)
@@ -190,33 +188,31 @@ class Transcript:
 
                     stop_codon_index = cds_end_index + 3
 
-                    #if stop_codon_index >= len(self.trans_coord_list):
+                    # if stop_codon_index >= len(self.trans_coord_list):
                     #    stop_codon_index = len(self.trans_coord_list) - 1
-                        
-                        #print(self.trans_coord_list)
-                        #print(stop_codon_index)
-                        #print(len(self.trans_coord_list))
-                        #print(self.trans_id)
-                        #sys.exit()
+
+                    # print(self.trans_coord_list)
+                    # print(stop_codon_index)
+                    # print(len(self.trans_coord_list))
+                    # print(self.trans_id)
+                    # sys.exit()
 
                     self.cds_end_adj = self.trans_coord_list[stop_codon_index]
-
 
             if self.strand == "-":
                 if stop_codon_flag == "include_stop":
                     cds_start_index = self.trans_coord_dict[self.cds_start]
                     stop_codon_index = cds_start_index - 3
                     self.cds_start = self.trans_coord_list[stop_codon_index]
-                    
-#        if self.trans_id == "G1594.5":
-#            print(self.trans_coord_list)
-#            print(stop_codon_index)
-#            print(len(self.trans_coord_list))
-#            print(self.trans_id)
-#            print(self.cds_end_adj)
-#            print(self.cds_end)
-#            sys.exit()
 
+    #        if self.trans_id == "G1594.5":
+    #            print(self.trans_coord_list)
+    #            print(stop_codon_index)
+    #            print(len(self.trans_coord_list))
+    #            print(self.trans_id)
+    #            print(self.cds_end_adj)
+    #            print(self.cds_end)
+    #            sys.exit()
 
     def cds_extract(self):
 
@@ -230,7 +226,7 @@ class Transcript:
         for i in range(int(self.num_exons)):
 
             e_index = i
-            e_num = e_index + 1
+            e_index + 1
 
             e_start = int(self.start_list[e_index])
             e_end = int(self.end_list[e_index])
@@ -242,20 +238,18 @@ class Transcript:
                 cds_e_start = self.cds_start
                 #######################
 
-
             if self.cds_end_adj >= e_start and self.cds_end_adj <= e_end:
                 cds_e_end = self.cds_end_adj
                 ######################
 
-            #if self.cds_end_adj == e_start:
+            # if self.cds_end_adj == e_start:
             #    continue
 
-            if self.cds_start > e_end: # cds start is after this exon
+            if self.cds_start > e_end:  # cds start is after this exon
                 continue
 
-            if self.cds_end_adj < e_start: # cds end is before this exon
+            if self.cds_end_adj < e_start:  # cds end is before this exon
                 continue
-
 
             cds_e_start_list.append(cds_e_start)
             cds_e_end_list.append(cds_e_end)
@@ -311,9 +305,8 @@ print("Going through bed file")
 for line in bed_file_contents:
 
     count += 1
-    if count % 10000 == 0 :
+    if count % 10000 == 0:
         print(count)
-
 
     line_split = line.split("\t")
 
@@ -333,8 +326,6 @@ for line in bed_file_contents:
     gene_id = id_split[0]
     trans_id = id_split[1]
 
-
-
     if cds_start != "0" and cds_end != "0":
         trans_obj = Transcript(line)
 
@@ -342,14 +333,3 @@ for line in bed_file_contents:
 
         outfile.write(new_bed_line)
         outfile.write("\n")
-
-
-
-
-
-
-
-
-
-
-

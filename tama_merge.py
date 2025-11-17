@@ -29,6 +29,8 @@ TAMA Merge
 
 Author: Richard I. Kuo
 
+Version: 0.0.3
+
 This script merges transcriptome/genome annotations.
 
 Last Updated: 2020/12/17
@@ -62,9 +64,9 @@ ap.add_argument(
     "-e",
     type=str,
     nargs=1,
-    help=("Collapse exon ends flag: "
-          "common_ends or longest_ends "
-          "(Default is common_ends)"),
+    help=("""
+    Collapse exon ends flag: common_ends or longest_ends (Default is common_ends)
+     """),
 )
 
 ap.add_argument("-a",
@@ -86,25 +88,31 @@ ap.add_argument(
     "-d",
     type=str,
     nargs=1,
-    help=("Flag for merging duplicate transcript groups "
-          "(default no_merge quits when duplicates are found, "
-          "merge_dup will merge duplicates)"),
+    help=("""
+    Flag for merging duplicate transcript groups 
+    (default no_merge quits when duplicates are found, 
+    merge_dup will merge duplicates)
+     """),
 )
 
 ap.add_argument(
     "-s",
     type=str,
     nargs=1,
-    help=("Use gene and transcript ID from a merge source. "
-          "Specify source name from filelist file here."),
+    help=("""
+    Use gene and transcript ID from a merge source. 
+    Specify source name from filelist file here.
+     """),
 )
 
 ap.add_argument(
     "-cds",
     type=str,
     nargs=1,
-    help=("Use CDS from a merge source. "
-          "Specify source name from filelist file here."),
+    help=("""
+    Use CDS from a merge source. 
+    Specify source name from filelist file here.
+     """),
 )
 
 ap.add_argument("-v",
@@ -113,6 +121,10 @@ ap.add_argument("-v",
                 help="Prints out version date and exits.")
 
 opts = ap.parse_args()
+if (len(sys.argv) == 0 or len(sys.argv) == 1 or len(sys.argv) == 2
+        or sys.argv[1] == "-h"):
+    ap.print_help()
+    sys.exit()
 
 # check for version request
 if not opts.v:
@@ -611,7 +623,8 @@ class Merged:
         trans_report_list.append(str(self.num_trans))
 
         # get all sources
-        merged_source_dict = {}  # merged_source_dict[source id] = 1
+        merged_source_dict = {}
+        # merged_source_dict[source id] = 1
         for merged_trans_id in self.merged_trans_dict:
             a_trans_obj = self.merged_trans_dict[merged_trans_id]
             source_id = a_trans_obj.source_id
